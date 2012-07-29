@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" applicationComplete="application1_applicationCompleteHandler(event)"  
+			   xmlns:s="library://ns.adobe.com/flex/spark"  currentState="title"
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	
+	
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:states>
+		<s:State name="title" />
+		<s:State name="home" />
+		<s:State name="win" />
+	</s:states>
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<!-- TITLE STATE -->
+	<s:VGroup includeIn="title" horizontalAlign="center" fontSize="15" width="100%" height="100%"  >
+		<s:Label includeIn="title" id="lblTimer" text="30" />
+	</s:VGroup>
+	
+	<s:HGroup includeIn="title" horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">
+	
+		<s:Label text="name" />
+		<s:TextInput id="txtInpName" />
+		<s:Button label="submit" click="button1_clickHandler(event)" />
+	</s:HGroup>
+	
+	<s:VGroup includeIn="home" verticalAlign="middle" horizontalAlign="center" width="100%" height="100%" >
+		<s:List click="lstColors_clickHandler(event)" id="lstColors" width="700" height="600" itemRenderer="ColorRenderer" >
+			
+			<s:dataProvider>
+				<s:ArrayCollection>
+					
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+					<fx:Object color="#AD001D" />
+					<fx:Object color="#0E00AD"/>
+					<fx:Object color="#000000" />
+	
+					
+				
+				</s:ArrayCollection>
+			</s:dataProvider>
+			
+			<s:layout >
+				<s:TileLayout horizontalAlign="center" verticalAlign="middle" requestedColumnCount="6" />
+			</s:layout>
+			
+		</s:List>	
+	</s:VGroup>
+	
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.net.Socket;
+			
+			import mx.controls.Alert;
+			import mx.core.ScrollPolicy;
+			import mx.events.FlexEvent;
+			
+			public var socket:Socket = new Socket();
+			
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				Alert.show("Please wait for the timer to finish counting down" );
+				
+				if( txtInpName.text == "" )
+				{
+					Alert.show( "Name can not be blank!" );
+					return;
+				}
+				
+				//adding a new player to palyer array in node
+				//doing under score so 0 index to node is always event name
+				socket.writeUTFBytes( "addPlayer_" + txtInpName.text );
+				
+			}
+			
+			override public function set currentState( value:String ):void
+			{
+				super.currentState = value;
+				
+				if( value == "home")
+				{
+				
+				}
+				
+			}
+			
+			protected function lstColors_clickHandler(event:MouseEvent):void
+			{
+				if( lstColors.selectedIndex != -1 )
+				{
+					lstColors.dataProvider.removeItemAt(lstColors.selectedIndex );		
+				}
+
+			}
+			
+			protected function application1_applicationCompleteHandler(event:FlexEvent):void
+			{
+				socket.connect( "mySocketServerUrlHere", 8080 );
+				
+				socket.addEventListener( Event.CONNECT, function( event:Event ):void
+				{
+					trace( socket.connected );
+					
+					socket.addEventListener( ProgressEvent.SOCKET_DATA, function( event:ProgressEvent ):void
+					{
+						var splitData:Array = socket.readUTFBytes( socket.bytesAvailable ).split("_");
+						
+						var eventName:String = splitData[0];
+						
+						
+						
+						switch( eventName )
+						{
+							case "startGame":
+								currentState = "home";
+								
+								break;
+						}
+					});
+				});
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+</s:Application>
